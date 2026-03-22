@@ -89,13 +89,18 @@ class APIService {
         request.timeoutInterval = timeoutInterval
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let body: [String: Any?] = [
-            "major": major.isEmpty ? nil : major,
-            "graduation_year": graduationYear.isEmpty ? nil : graduationYear,
-            "bio": bio.isEmpty ? nil : bio
-        ]
+        var body: [String: Any] = [:]
+        if !major.isEmpty {
+            body["major"] = major
+        }
+        if !graduationYear.isEmpty {
+            body["graduation_year"] = graduationYear
+        }
+        if !bio.isEmpty {
+            body["bio"] = bio
+        }
 
-        request.httpBody = try JSONEncoder().encode(body)
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (data, response) = try await URLSession.shared.data(for: request)
 

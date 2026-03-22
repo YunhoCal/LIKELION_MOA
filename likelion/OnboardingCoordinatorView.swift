@@ -2,7 +2,6 @@ import SwiftUI
 
 struct OnboardingCoordinatorView: View {
     @EnvironmentObject var appState: AppState
-    @StateObject private var apiService = APIService.shared
 
     let userId: String
     let userName: String
@@ -33,7 +32,7 @@ struct OnboardingCoordinatorView: View {
             Group {
                 switch currentStep {
                 case .profile:
-                    ProfileSetupView(
+                    OnboardingProfileView(
                         major: $major,
                         graduationYear: $graduationYear,
                         bio: $bio,
@@ -97,7 +96,7 @@ struct OnboardingCoordinatorView: View {
             defer { isLoading = false }
 
             do {
-                let response = try await apiService.updateProfile(
+                let response = try await APIService.shared.updateProfile(
                     userId: userId,
                     major: major,
                     graduationYear: graduationYear,
@@ -130,7 +129,7 @@ struct OnboardingCoordinatorView: View {
 
             do {
                 let categoryIds = selectedCategories.map { $0.id }
-                let response = try await apiService.updateInterests(
+                let response = try await APIService.shared.updateInterests(
                     userId: userId,
                     categories: categoryIds,
                     subcategories: selectedSubcategories
@@ -172,8 +171,8 @@ struct OnboardingCoordinatorView: View {
     }
 }
 
-// Profile Setup View
-struct ProfileSetupView: View {
+// Onboarding Profile Setup View
+struct OnboardingProfileView: View {
     @Binding var major: String
     @Binding var graduationYear: String
     @Binding var bio: String
