@@ -108,6 +108,8 @@ app.post('/api/auth/signup', async (req, res) => {
       graduation_year: null,
       bio: null,
       profile_picture_url: null,
+      interest_categories: [],
+      interest_subcategories: [],
       created_at: admin.firestore.FieldValue.serverTimestamp(),
       updated_at: admin.firestore.FieldValue.serverTimestamp()
     };
@@ -183,18 +185,23 @@ app.post('/api/auth/login', async (req, res) => {
 app.put('/api/auth/profile/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { major, graduation_year, bio } = req.body;
+    const { major, graduation_year, bio, interest_categories, interest_subcategories } = req.body;
 
-    console.log('Profile update request:', { id, major, graduation_year, bio });
+    console.log('Profile update request:', { id, major, graduation_year, bio, interest_categories, interest_subcategories });
 
     const userRef = db.collection('users').doc(id);
 
-    await userRef.update({
-      major: major || null,
-      graduation_year: graduation_year || null,
-      bio: bio || null,
+    const updateData = {
       updated_at: admin.firestore.FieldValue.serverTimestamp()
-    });
+    };
+
+    if (major !== undefined) updateData.major = major || null;
+    if (graduation_year !== undefined) updateData.graduation_year = graduation_year || null;
+    if (bio !== undefined) updateData.bio = bio || null;
+    if (interest_categories !== undefined) updateData.interest_categories = interest_categories || [];
+    if (interest_subcategories !== undefined) updateData.interest_subcategories = interest_subcategories || [];
+
+    await userRef.update(updateData);
 
     // Fetch updated user
     const userDoc = await userRef.get();

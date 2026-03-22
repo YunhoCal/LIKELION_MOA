@@ -27,6 +27,7 @@
 
 ### Active Features
 - ✅ User authentication (signup/login)
+- ✅ User interest onboarding (multi-step category & subcategory selection)
 - ✅ Create activities
 - ✅ Join activities
 - ✅ Leave activities (with 1-hour restriction)
@@ -76,6 +77,8 @@
   graduation_year: String | null,
   bio: String | null,
   profile_picture_url: String | null,
+  interest_categories: [String],      // Category IDs (e.g., ["sports_exercise", "music_instruments"])
+  interest_subcategories: [String],   // Subcategory names (e.g., ["Running", "Guitar", "Piano"])
   created_at: Timestamp,
   updated_at: Timestamp
 }
@@ -109,6 +112,16 @@
 ---
 
 ## Recent Changes
+
+### March 22, 2026 - User Interest Onboarding System ✅
+- Added multi-step onboarding flow after signup
+- Created 16 main interest categories with subcategories
+- Built category selection UI with search functionality
+- Built subcategory selection UI with flow layout
+- Updated backend to store user interests (categories & subcategories)
+- Added API endpoint for updating user interests
+- Integrated onboarding with signup process
+- Users can now select their areas of interest during registration
 
 ### March 22, 2026 - Cloud Deployment ✅
 - Migrated from SQLite to Firebase Firestore

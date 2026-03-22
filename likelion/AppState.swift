@@ -8,6 +8,7 @@ class AppState: ObservableObject {
     @Published var isProfileSetupComplete = false
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var token: String?
 
     private let apiService = APIService.shared
     private let keychainManager = KeychainManager.shared

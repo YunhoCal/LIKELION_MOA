@@ -3,7 +3,7 @@ import Foundation
 class APIService {
     static let shared = APIService()
 
-    private let baseURL = "http://10.0.0.112:3000"
+    private let baseURL = "https://likelionmoa-production.up.railway.app"
     private let timeoutInterval: TimeInterval = 7.0
 
     // MARK: - Signup
@@ -89,13 +89,45 @@ class APIService {
         request.timeoutInterval = timeoutInterval
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let body: [String: String?] = [
+        let body: [String: Any?] = [
             "major": major.isEmpty ? nil : major,
             "graduation_year": graduationYear.isEmpty ? nil : graduationYear,
             "bio": bio.isEmpty ? nil : bio
         ]
 
         request.httpBody = try JSONEncoder().encode(body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        try handleResponse(response, data: data)
+
+        let decoder = JSONDecoder()
+        let loginResponse = try decoder.decode(LoginResponse.self, from: data)
+        return loginResponse
+    }
+
+    // MARK: - Update Interests
+    func updateInterests(
+        userId: String,
+        categories: [String],
+        subcategories: [String]
+    ) async throws -> LoginResponse {
+        let endpoint = "/api/auth/profile/\(userId)"
+        guard let url = URL(string: baseURL + endpoint) else {
+            throw APIError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.timeoutInterval = timeoutInterval
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: Any] = [
+            "interest_categories": categories,
+            "interest_subcategories": subcategories
+        ]
+
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (data, response) = try await URLSession.shared.data(for: request)
 

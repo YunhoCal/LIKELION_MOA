@@ -11,6 +11,8 @@ struct SignupView: View {
     @State private var errorMessage: String? = nil
     @State private var showSuccessAlert: Bool = false
     @State private var agreeToTerms: Bool = false
+    @State private var showOnboarding: Bool = false
+    @State private var newUserId: String = ""
 
     var body: some View {
         VStack(spacing: 20) {
@@ -173,6 +175,15 @@ struct SignupView: View {
             .padding(.bottom, 40)
         }
         .padding(.horizontal, 24)
+        .fullScreenCover(isPresented: $showOnboarding) {
+            OnboardingCoordinatorView(
+                userId: newUserId,
+                userName: name,
+                userEmail: email,
+                userUniversity: university
+            )
+            .environmentObject(appState)
+        }
         .alert("Sign Up Successful", isPresented: $showSuccessAlert) {
             Button("OK") {
                 // Confirm and switch back to login screen
@@ -220,9 +231,28 @@ struct SignupView: View {
         errorMessage = nil
 
         Task {
-            await appState.signup(email: email, password: password, name: name, university: university)
-            // The signup function sets isLoggedIn = true, so user goes directly to home
-            showSuccessAlert = true
+            do {
+                let response = try await APIService.shared.signup(
+                    email: email,
+                    password: password,
+                    name: name,
+                    university: university
+                )
+
+                // Save user ID and token
+                newUserId = response.user.id
+                appState.token = response.token
+
+                // Show onboarding flow
+                await MainActor.run {
+                    showOnboarding = true
+                }
+
+            } catch {
+                await MainActor.run {
+                    errorMessage = error.localizedDescription
+                }
+            }
         }
     }
 }
