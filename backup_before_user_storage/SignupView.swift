@@ -218,12 +218,9 @@ struct SignupView: View {
 
         print("Signup validation passed, creating account")
         errorMessage = nil
-
-        Task {
-            await appState.signup(email: email, password: password, name: name, university: university)
-            // The signup function sets isLoggedIn = true, so user goes directly to home
-            showSuccessAlert = true
-        }
+        appState.signup(email: email, password: password, name: name, university: university)
+        // The signup function sets isLoggedIn = true, so user goes directly to home
+        showSuccessAlert = true
     }
 }
 

@@ -1,14 +1,9 @@
 import SwiftUI
-import FirebaseCore
 
 @main
 struct MOAApp: App {
     @StateObject var appState = AppState()
     @State private var showSplash: Bool = true
-
-    init() {
-        FirebaseApp.configure()
-    }
 
     var body: some Scene {
             WindowGroup {

@@ -56,6 +56,7 @@ struct ActivityData: Codable {
     let description: String
     let hostUserId: String
     let hostName: String
+    let hostUniversity: String
     let locationName: String
     let locationLat: Double
     let locationLng: Double
@@ -76,6 +77,7 @@ struct ActivityData: Codable {
         case description
         case hostUserId = "hostUserId"
         case hostName = "hostName"
+        case hostUniversity = "hostUniversity"
         case locationName = "locationName"
         case locationLat = "locationLat"
         case locationLng = "locationLng"

@@ -4,19 +4,14 @@ struct CreateActivityView: View {
     let category: Activity.ActivityCategory
     @Binding var isPresented: Bool
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var appState: AppState
     @State private var title: String = ""
     @State private var description: String = ""
     @State private var locationName: String = ""
     @State private var startDateTime: Date = Date().addingTimeInterval(3600)
     @State private var endDateTime: Date = Date().addingTimeInterval(7200)
     @State private var maxParticipants: String = "5"
-    @State private var subject: String = ""
-    @State private var cuisineType: String = ""
-    @State private var sportActivity: String = ""
     @State private var showSuccessAlert: Bool = false
     @State private var errorMessage: String = ""
-    @State private var isLoading: Bool = false
 
     var isFormValid: Bool {
         !title.trimmingCharacters(in: .whitespaces).isEmpty &&
@@ -47,7 +42,7 @@ struct CreateActivityView: View {
             .background(Color.white)
 
             ScrollView {
-                VStack(spacing: 8) {
+                VStack(spacing: 16) {
                     // Category Tag (Read-only)
                     HStack(spacing: 8) {
                         Text(category.emoji)
@@ -62,11 +57,10 @@ struct CreateActivityView: View {
                     .padding(12)
                     .background(Color(red: 0.4, green: 0.3, blue: 0.8))
                     .cornerRadius(8)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
+                    .padding(16)
 
                     // Form Fields
-                    VStack(spacing: 12) {
+                    VStack(spacing: 16) {
                         // Title
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Activity Title")
@@ -174,11 +168,14 @@ struct CreateActivityView: View {
                                     .font(.system(size: 12, weight: .semibold))
                                     .foregroundColor(.black)
 
-                                TextField("e.g., Data Structures", text: $subject)
-                                    .font(.system(size: 14, weight: .regular))
-                                    .padding(12)
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(8)
+                                TextField("e.g., Data Structures", text: Binding(
+                                    get: { "" },
+                                    set: { _ in }
+                                ))
+                                .font(.system(size: 14, weight: .regular))
+                                .padding(12)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
                             }
                         } else if category == .mealBuddy {
                             VStack(alignment: .leading, spacing: 8) {
@@ -186,11 +183,14 @@ struct CreateActivityView: View {
                                     .font(.system(size: 12, weight: .semibold))
                                     .foregroundColor(.black)
 
-                                TextField("e.g., Korean BBQ", text: $cuisineType)
-                                    .font(.system(size: 14, weight: .regular))
-                                    .padding(12)
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(8)
+                                TextField("e.g., Korean BBQ", text: Binding(
+                                    get: { "" },
+                                    set: { _ in }
+                                ))
+                                .font(.system(size: 14, weight: .regular))
+                                .padding(12)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
                             }
                         } else if category == .sports {
                             VStack(alignment: .leading, spacing: 8) {
@@ -198,11 +198,14 @@ struct CreateActivityView: View {
                                     .font(.system(size: 12, weight: .semibold))
                                     .foregroundColor(.black)
 
-                                TextField("e.g., Basketball", text: $sportActivity)
-                                    .font(.system(size: 14, weight: .regular))
-                                    .padding(12)
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(8)
+                                TextField("e.g., Basketball", text: Binding(
+                                    get: { "" },
+                                    set: { _ in }
+                                ))
+                                .font(.system(size: 14, weight: .regular))
+                                .padding(12)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
                             }
                         }
 
@@ -216,34 +219,25 @@ struct CreateActivityView: View {
                                 .cornerRadius(8)
                         }
                     }
-                    .padding(10)
+                    .padding(16)
                     .background(Color.white)
                     .cornerRadius(12)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
 
                     // Submit Button
                     Button(action: createActivity) {
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                                .background(Color(red: 0.4, green: 0.3, blue: 0.8).opacity(0.7))
-                                .cornerRadius(8)
-                        } else {
-                            Text("Create Activity")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(14)
-                                .background(isFormValid ? Color(red: 0.4, green: 0.3, blue: 0.8) : Color.gray)
-                                .cornerRadius(8)
-                        }
+                        Text("Create Activity")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(14)
+                            .background(isFormValid ? Color(red: 0.4, green: 0.3, blue: 0.8) : Color.gray)
+                            .cornerRadius(8)
                     }
-                    .disabled(!isFormValid || isLoading)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
+                    .disabled(!isFormValid)
+                    .padding(16)
+
+                    Spacer()
+                        .frame(height: 20)
                 }
             }
         }
@@ -266,52 +260,9 @@ struct CreateActivityView: View {
             return
         }
 
-        guard let user = appState.currentUser else {
-            errorMessage = "User not found. Please login again."
-            return
-        }
-
-        isLoading = true
-        errorMessage = ""
-
-        Task {
-            do {
-                // Build description with category-specific field
-                var finalDescription = description
-                if category == .study && !subject.isEmpty {
-                    finalDescription = "\(description)\n\nSubject: \(subject)"
-                } else if category == .mealBuddy && !cuisineType.isEmpty {
-                    finalDescription = "\(description)\n\nCuisine: \(cuisineType)"
-                } else if category == .sports && !sportActivity.isEmpty {
-                    finalDescription = "\(description)\n\nSport: \(sportActivity)"
-                }
-
-                let _ = try await APIService.shared.createActivity(
-                    title: title,
-                    category: category.rawValue,
-                    description: finalDescription,
-                    hostUserId: user.id,
-                    hostName: user.name,
-                    hostUniversity: user.university,
-                    locationName: locationName,
-                    locationLat: 0.0,
-                    locationLng: 0.0,
-                    startDateTime: startDateTime,
-                    endDateTime: endDateTime,
-                    maxParticipants: Int(maxParticipants) ?? 5
-                )
-
-                isLoading = false
-                showSuccessAlert = true
-            } catch {
-                isLoading = false
-                if let apiError = error as? APIError {
-                    errorMessage = apiError.localizedDescription
-                } else {
-                    errorMessage = error.localizedDescription
-                }
-            }
-        }
+        // In a real app, this would make an API call to create the activity
+        // For now, we'll just show a success message
+        showSuccessAlert = true
     }
 }
 

@@ -3,7 +3,7 @@ import Foundation
 class APIService {
     static let shared = APIService()
 
-    private let baseURL = "http://10.239.255.73:3000"
+    private let baseURL = "http://10.0.0.112:3000"
     private let timeoutInterval: TimeInterval = 7.0
 
     // MARK: - Signup
@@ -113,6 +113,7 @@ class APIService {
         description: String,
         hostUserId: String,
         hostName: String,
+        hostUniversity: String,
         locationName: String,
         locationLat: Double,
         locationLng: Double,
@@ -137,6 +138,7 @@ class APIService {
             "description": description,
             "hostUserId": hostUserId,
             "hostName": hostName,
+            "hostUniversity": hostUniversity,
             "locationName": locationName,
             "locationLat": locationLat,
             "locationLng": locationLng,
@@ -187,6 +189,34 @@ class APIService {
     // MARK: - Join Activity
     func joinActivity(activityId: String, userId: String) async throws -> ActivityResponse {
         let endpoint = "/api/activities/\(activityId)/join"
+        guard let url = URL(string: baseURL + endpoint) else {
+            throw APIError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.timeoutInterval = timeoutInterval
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: String] = [
+            "userId": userId
+        ]
+
+        request.httpBody = try JSONEncoder().encode(body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        try handleResponse(response, data: data)
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let activityResponse = try decoder.decode(ActivityResponse.self, from: data)
+        return activityResponse
+    }
+
+    // MARK: - Leave Activity
+    func leaveActivity(activityId: String, userId: String) async throws -> ActivityResponse {
+        let endpoint = "/api/activities/\(activityId)/leave"
         guard let url = URL(string: baseURL + endpoint) else {
             throw APIError.invalidURL
         }

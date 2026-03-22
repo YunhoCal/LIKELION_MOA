@@ -2,9 +2,8 @@ import SwiftUI
 
 struct CategoryActivityListView: View {
     let category: Activity.ActivityCategory
+    let activities: [Activity]
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var appState: AppState
-    @StateObject private var firebaseService = FirebaseService.shared
     @State private var showCreateActivity: Bool = false
     @State private var selectedDate: Date?
     @State private var filterByDate: Bool = false
@@ -12,17 +11,11 @@ struct CategoryActivityListView: View {
     @State private var filterBySchool: Bool = false
 
     var filteredActivities: [Activity] {
-        var filtered = firebaseService.activities.filter { $0.category == category }
+        var filtered = activities.filter { $0.category == category }
 
         if filterByDate, let date = selectedDate {
             filtered = filtered.filter { activity in
                 Calendar.current.isDate(activity.startDateTime, inSameDayAs: date)
-            }
-        }
-
-        if filterBySchool, let userUniversity = appState.currentUser?.university {
-            filtered = filtered.filter { activity in
-                activity.hostUniversity == userUniversity
             }
         }
 
@@ -189,14 +182,6 @@ struct CategoryActivityListView: View {
         .navigationDestination(isPresented: $showCreateActivity) {
             CreateActivityView(category: category, isPresented: $showCreateActivity)
         }
-        .onAppear {
-            // Start listening to real-time Firebase updates for this category
-            firebaseService.startListeningToActivities(category: category.rawValue)
-        }
-        .onDisappear {
-            // Stop listening when view disappears
-            firebaseService.stopListeningToActivities()
-        }
     }
 }
 
@@ -275,6 +260,9 @@ struct ActivityListItem: View {
 
 #Preview {
     NavigationStack {
-        CategoryActivityListView(category: .study)
+        CategoryActivityListView(
+            category: .study,
+            activities: Activity.samples
+        )
     }
 }

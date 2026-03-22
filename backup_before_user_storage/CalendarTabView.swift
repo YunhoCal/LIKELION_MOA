@@ -7,20 +7,9 @@ struct CalendarTabView: View {
     @State private var showMyActivitiesOnly: Bool = false
     @State private var selectedActivity: Activity?
     @State private var showActivityDetail: Bool = false
-    @State private var activities: [Activity] = []
-    @State private var isLoading: Bool = false
 
-    var filteredActivities: [Activity] {
-        if showMyActivitiesOnly {
-            if let user = appState.currentUser {
-                return activities.filter { activity in
-                    activity.participants.contains(user.id)
-                }
-            }
-            return []
-        }
-        return activities
-    }
+    // Sample activities - in real app, these would come from backend
+    let activities: [Activity] = Activity.samples
 
     var body: some View {
         VStack(spacing: 0) {
@@ -42,7 +31,7 @@ struct CalendarTabView: View {
                     CalendarGridView(
                         currentDate: $currentDate,
                         selectedDate: $selectedDate,
-                        activities: filteredActivities
+                        activities: activities
                     )
 
                     // Toggle for My Activities / All Activities
@@ -116,53 +105,11 @@ struct CalendarTabView: View {
                 ActivityDetailView(activity: activity)
             }
         }
-        .onAppear {
-            fetchActivities()
-        }
-    }
-
-    private func fetchActivities() {
-        isLoading = true
-        Task {
-            do {
-                let fetchedActivityData = try await APIService.shared.fetchActivities()
-                let convertedActivities = fetchedActivityData.map { data -> Activity in
-                    Activity(
-                        id: data.id,
-                        title: data.title,
-                        category: Activity.ActivityCategory(rawValue: data.category) ?? .others,
-                        description: data.description,
-                        hostUserId: data.hostUserId,
-                        hostName: data.hostName,
-                        hostUniversity: data.hostUniversity,
-                        locationName: data.locationName,
-                        locationLat: data.locationLat,
-                        locationLng: data.locationLng,
-                        startDateTime: data.startDateTime,
-                        endDateTime: data.endDateTime,
-                        isInstant: data.isInstant,
-                        maxParticipants: data.maxParticipants,
-                        currentParticipants: data.currentParticipants,
-                        status: Activity.ActivityStatus(rawValue: data.status) ?? .open,
-                        participants: data.participants,
-                        createdAt: data.createdAt,
-                        updatedAt: data.updatedAt
-                    )
-                }
-
-                activities = convertedActivities
-                isLoading = false
-            } catch {
-                // Fallback to sample data if API fails
-                activities = Activity.samples
-                isLoading = false
-            }
-        }
     }
 
     private func getActivitiesForDate(_ date: Date) -> [Activity] {
         let calendar = Calendar.current
-        return filteredActivities.filter { activity in
+        return activities.filter { activity in
             calendar.isDate(activity.startDateTime, inSameDayAs: date)
         }
     }
@@ -379,210 +326,75 @@ struct ActivityDateItem: View {
 struct ActivityDetailView: View {
     let activity: Activity
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var appState: AppState
-    @State private var isJoining: Bool = false
-    @State private var isLeaving: Bool = false
-    @State private var showSuccessMessage: Bool = false
-    @State private var showLeaveSuccessMessage: Bool = false
-    @State private var showLeaveError: Bool = false
-    @State private var leaveErrorMessage: String = ""
-    @State private var hasJoined: Bool = false
-    @State private var canLeave: Bool = true
-    @State private var isHost: Bool = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 12) {
+        VStack(spacing: 16) {
+            HStack {
                 Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
                         .foregroundColor(Color(red: 0.4, green: 0.3, blue: 0.8))
                 }
-
+                Spacer()
                 Text("Activity Details")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.black)
-
                 Spacer()
+                Color.clear
+                    .frame(width: 20)
             }
-            .padding(12)
-            .background(Color.white)
-            .border(Color(.systemGray5), width: 1)
+            .padding(16)
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    // Activity Header - Compact
+                VStack(alignment: .leading, spacing: 16) {
+                    // Activity Header
                     HStack(spacing: 12) {
                         Text(activity.category.emoji)
-                            .font(.system(size: 28))
+                            .font(.system(size: 32))
 
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(activity.title)
-                                .font(.system(size: 16, weight: .bold))
+                                .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.black)
 
                             Text(activity.category.rawValue)
-                                .font(.system(size: 11, weight: .regular))
+                                .font(.system(size: 12, weight: .regular))
                                 .foregroundColor(.gray)
                         }
 
                         Spacer()
                     }
-                    .padding(12)
-                    .background(Color.white)
-                    .cornerRadius(10)
+                    .padding(16)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
 
-                    // Details - Compact
-                    VStack(alignment: .leading, spacing: 10) {
+                    // Details
+                    VStack(alignment: .leading, spacing: 12) {
                         DetailRow(label: "Time", value: dateTimeString(activity.startDateTime))
-                        Divider()
                         DetailRow(label: "Location", value: activity.locationName)
-                        Divider()
                         DetailRow(label: "Description", value: activity.description)
-                        Divider()
                         DetailRow(label: "Host", value: activity.hostName)
-                        Divider()
                         DetailRow(label: "Participants", value: "\(activity.currentParticipants) / \(activity.maxParticipants)")
                     }
-                    .padding(12)
+                    .padding(16)
                     .background(Color.white)
-                    .cornerRadius(10)
+                    .cornerRadius(12)
 
-                    // Join/Leave Button
-                    if hasJoined {
-                        // Leave Button
-                        Button(action: leaveActivity) {
-                            if isLeaving {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 48)
-                                    .background(Color.red.opacity(0.7))
-                                    .cornerRadius(8)
-                            } else {
-                                Text(canLeave ? "Leave Activity" : "Cannot leave (starts in < 1 hour)")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(12)
-                                    .background(canLeave ? Color.red : Color.gray)
-                                    .cornerRadius(8)
-                            }
-                        }
-                        .disabled(!canLeave || isLeaving || isHost)
-                        .alert("Left Activity", isPresented: $showLeaveSuccessMessage) {
-                            Button("Done") {
-                                dismiss()
-                            }
-                        } message: {
-                            Text("You've successfully left \(activity.title)")
-                        }
-                        .alert("Cannot Leave", isPresented: $showLeaveError) {
-                            Button("OK", role: .cancel) {}
-                        } message: {
-                            Text(leaveErrorMessage)
-                        }
-
-                        if isHost {
-                            Text("You are the host of this activity")
-                                .font(.system(size: 12, weight: .regular))
-                                .foregroundColor(.gray)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                        }
-                    } else {
-                        // Join Button
-                        Button(action: joinActivity) {
-                            if isJoining {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 48)
-                                    .background(Color(red: 0.4, green: 0.3, blue: 0.8).opacity(0.7))
-                                    .cornerRadius(8)
-                            } else {
-                                Text(activity.isFull ? "Activity Full" : "Join Activity")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(12)
-                                    .background(activity.isFull ? Color.gray : Color(red: 0.4, green: 0.3, blue: 0.8))
-                                    .cornerRadius(8)
-                            }
-                        }
-                        .disabled(activity.isFull || isJoining)
-                        .alert("Joined Activity", isPresented: $showSuccessMessage) {
-                            Button("Done") {
-                                dismiss()
-                            }
-                        } message: {
-                            Text("You've successfully joined \(activity.title)!")
-                        }
+                    // Join Button
+                    Button(action: {}) {
+                        Text(activity.isFull ? "Activity Full" : "Join Activity")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(14)
+                            .background(activity.isFull ? Color.gray : Color(red: 0.4, green: 0.3, blue: 0.8))
+                            .cornerRadius(8)
                     }
+                    .disabled(activity.isFull)
+                    .padding(16)
                 }
-                .padding(12)
             }
-            .background(Color(.systemGray6))
         }
         .background(Color(.systemGray6))
         .navigationBarBackButtonHidden(true)
-        .onAppear {
-            // Check if current user already joined and if they're the host
-            if let user = appState.currentUser {
-                hasJoined = activity.participants.contains(user.id)
-                isHost = activity.hostUserId == user.id
-
-                // Check if user can leave (activity must start in more than 1 hour)
-                let now = Date()
-                let oneHourFromNow = now.addingTimeInterval(60 * 60)
-                canLeave = activity.startDateTime > oneHourFromNow
-            }
-        }
-    }
-
-    private func joinActivity() {
-        guard let user = appState.currentUser else {
-            return
-        }
-
-        isJoining = true
-
-        Task {
-            do {
-                let _ = try await APIService.shared.joinActivity(activityId: activity.id, userId: user.id)
-                isJoining = false
-                hasJoined = true
-                showSuccessMessage = true
-            } catch {
-                isJoining = false
-                // Show error if needed
-                print("Error joining activity: \(error)")
-            }
-        }
-    }
-
-    private func leaveActivity() {
-        guard let user = appState.currentUser else {
-            return
-        }
-
-        isLeaving = true
-
-        Task {
-            do {
-                let _ = try await APIService.shared.leaveActivity(activityId: activity.id, userId: user.id)
-                isLeaving = false
-                hasJoined = false
-                showLeaveSuccessMessage = true
-            } catch {
-                isLeaving = false
-                if let apiError = error as? APIError {
-                    leaveErrorMessage = apiError.localizedDescription
-                } else {
-                    leaveErrorMessage = error.localizedDescription
-                }
-                showLeaveError = true
-                print("Error leaving activity: \(error)")
-            }
-        }
     }
 
     private func dateTimeString(_ date: Date) -> String {

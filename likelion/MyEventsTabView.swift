@@ -2,19 +2,18 @@ import SwiftUI
 
 struct MyEventsTabView: View {
     @EnvironmentObject var appState: AppState
-    @State private var activities: [Activity] = []
-    @State private var isLoading: Bool = false
+    @StateObject private var firebaseService = FirebaseService.shared
 
     var createdEvents: [Activity] {
         guard let user = appState.currentUser else { return [] }
-        return activities.filter { activity in
+        return firebaseService.activities.filter { activity in
             activity.hostUserId == user.id
         }
     }
 
     var joinedEvents: [Activity] {
         guard let user = appState.currentUser else { return [] }
-        return activities.filter { activity in
+        return firebaseService.activities.filter { activity in
             activity.hostUserId != user.id && activity.participants.contains(user.id)
         }
     }
@@ -126,43 +125,12 @@ struct MyEventsTabView: View {
             .background(Color(.systemGray6))
         }
         .onAppear {
-            fetchActivities()
+            // Start listening to real-time Firebase updates
+            firebaseService.startListeningToActivities()
         }
-    }
-
-    private func fetchActivities() {
-        isLoading = true
-        Task {
-            do {
-                let fetchedActivityData = try await APIService.shared.fetchActivities()
-                let convertedActivities = fetchedActivityData.map { data -> Activity in
-                    Activity(
-                        id: data.id,
-                        title: data.title,
-                        category: Activity.ActivityCategory(rawValue: data.category) ?? .others,
-                        description: data.description,
-                        hostUserId: data.hostUserId,
-                        hostName: data.hostName,
-                        locationName: data.locationName,
-                        locationLat: data.locationLat,
-                        locationLng: data.locationLng,
-                        startDateTime: data.startDateTime,
-                        endDateTime: data.endDateTime,
-                        isInstant: data.isInstant,
-                        maxParticipants: data.maxParticipants,
-                        currentParticipants: data.currentParticipants,
-                        status: Activity.ActivityStatus(rawValue: data.status) ?? .open,
-                        participants: data.participants,
-                        createdAt: data.createdAt,
-                        updatedAt: data.updatedAt
-                    )
-                }
-                activities = convertedActivities
-                isLoading = false
-            } catch {
-                activities = []
-                isLoading = false
-            }
+        .onDisappear {
+            // Stop listening when view disappears
+            firebaseService.stopListeningToActivities()
         }
     }
 }
