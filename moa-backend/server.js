@@ -13,14 +13,30 @@ const PORT = process.env.PORT || 3000;
 // Support both local file and environment variables for deployment
 let credential;
 
+console.log('Checking Firebase credentials...');
+console.log('FIREBASE_SERVICE_ACCOUNT exists:', !!process.env.FIREBASE_SERVICE_ACCOUNT);
+
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   // Production: Use environment variable
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-  credential = admin.credential.cert(serviceAccount);
+  console.log('Using Firebase credentials from environment variable');
+  try {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    credential = admin.credential.cert(serviceAccount);
+  } catch (error) {
+    console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT:', error);
+    throw error;
+  }
 } else {
   // Development: Use local file
-  const serviceAccount = require('./firebase-service-account.json');
-  credential = admin.credential.cert(serviceAccount);
+  console.log('Using Firebase credentials from local file');
+  try {
+    const serviceAccount = require('./firebase-service-account.json');
+    credential = admin.credential.cert(serviceAccount);
+  } catch (error) {
+    console.error('Failed to load firebase-service-account.json');
+    console.error('Please set FIREBASE_SERVICE_ACCOUNT environment variable for production');
+    throw error;
+  }
 }
 
 admin.initializeApp({
