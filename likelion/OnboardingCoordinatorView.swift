@@ -142,22 +142,15 @@ struct OnboardingCoordinatorView: View {
 
                 // Update user with new info
                 await MainActor.run {
-                    if var user = appState.currentUser {
-                        user.name = userName
-                        user.email = userEmail
-                        user.university = userUniversity
-                        appState.currentUser = user
-                    } else {
-                        appState.currentUser = User(
-                            id: userId,
-                            email: userEmail,
-                            name: userName,
-                            university: userUniversity,
-                            major: major.isEmpty ? nil : major,
-                            graduationYear: graduationYear.isEmpty ? nil : graduationYear,
-                            bio: bio.isEmpty ? nil : bio
-                        )
-                    }
+                    appState.currentUser = User(
+                        id: userId,
+                        email: userEmail,
+                        name: userName,
+                        university: userUniversity,
+                        major: major.isEmpty ? nil : major,
+                        graduationYear: graduationYear.isEmpty ? nil : graduationYear,
+                        bio: bio.isEmpty ? nil : bio
+                    )
                     appState.isLoggedIn = true
                 }
 
