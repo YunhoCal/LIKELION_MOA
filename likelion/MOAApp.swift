@@ -15,11 +15,7 @@ struct MOAApp: App {
                 ZStack {
                     // 1) 메인 컨텐츠: 로그인 여부에 따라 분기
                     if appState.isLoggedIn {
-                        if appState.isProfileSetupComplete {
-                            HomeView()
-                        } else {
-                            ProfileSetupView()
-                        }
+                        HomeView()
                     } else {
                         AuthenticationView()
                     }

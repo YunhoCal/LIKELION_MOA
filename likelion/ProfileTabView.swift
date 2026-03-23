@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProfileTabView: View {
     @EnvironmentObject var appState: AppState
+    @State private var showEditInterests: Bool = false
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -44,6 +45,45 @@ struct ProfileTabView: View {
                 // Profile sections
                 ScrollView {
                     VStack(spacing: 0) {
+                        // Edit Interests Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Areas of Interest")
+                                .font(.system(size: 14, weight: .semibold))
+                                .padding(16)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            Button(action: {
+                                showEditInterests = true
+                            }) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "star.circle.fill")
+                                        .foregroundColor(Color(red: 0.4, green: 0.3, blue: 0.8))
+                                        .font(.system(size: 20))
+
+                                    Text("Edit Your Interests")
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundColor(.black)
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.gray)
+                                        .font(.system(size: 12))
+                                }
+                                .padding(16)
+                                .background(Color.white)
+                                .cornerRadius(8)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color(red: 0.4, green: 0.3, blue: 0.8), lineWidth: 1.5)
+                                )
+                            }
+                            .padding(.horizontal, 16)
+                        }
+
+                        Divider()
+                            .padding(.vertical, 12)
+
                         // Account Information Section
                         ProfileSection(
                             title: "Account Information",
@@ -114,6 +154,10 @@ struct ProfileTabView: View {
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 80)
+        }
+        .fullScreenCover(isPresented: $showEditInterests) {
+            EditInterestsView()
+                .environmentObject(appState)
         }
     }
 }

@@ -12,7 +12,7 @@ struct InterestCategory: Identifiable, Codable, Hashable {
             id: "sports_exercise",
             name: "Sports & Exercise",
             emoji: "⚽️",
-            subcategories: ["Badminton", "Running", "Gym/CrossFit", "Soccer", "Basketball", "Tennis", "Swimming", "Yoga", "Hiking", "Cycling", "Martial Arts", "Rock Climbing"]
+            subcategories: ["Badminton", "Running", "Gym/CrossFit", "Swimming", "Yoga", "Hiking", "Cycling", "Martial Arts", "Rock Climbing"]
         ),
         InterestCategory(
             id: "reading_writing",
