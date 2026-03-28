@@ -36,7 +36,9 @@ class AppState: ObservableObject {
                 university: response.user.university,
                 major: response.user.major,
                 graduationYear: response.user.graduation_year,
-                bio: response.user.bio
+                bio: response.user.bio,
+                interestCategories: response.user.interest_categories,
+                interestSubcategories: response.user.interest_subcategories
             )
 
             // Check if profile is complete (has major or bio filled in)
@@ -125,7 +127,9 @@ class AppState: ObservableObject {
                 university: response.user.university,
                 major: response.user.major,
                 graduationYear: response.user.graduation_year,
-                bio: response.user.bio
+                bio: response.user.bio,
+                interestCategories: response.user.interest_categories,
+                interestSubcategories: response.user.interest_subcategories
             )
 
             isProfileSetupComplete = true
@@ -149,8 +153,10 @@ struct User: Identifiable {
     let major: String?
     let graduationYear: String?
     let bio: String?
+    let interestCategories: [String]?
+    let interestSubcategories: [String]?
 
-    init(id: String, email: String, name: String, university: String, major: String? = nil, graduationYear: String? = nil, bio: String? = nil) {
+    init(id: String, email: String, name: String, university: String, major: String? = nil, graduationYear: String? = nil, bio: String? = nil, interestCategories: [String]? = nil, interestSubcategories: [String]? = nil) {
         self.id = id
         self.email = email
         self.name = name
@@ -158,5 +164,7 @@ struct User: Identifiable {
         self.major = major
         self.graduationYear = graduationYear
         self.bio = bio
+        self.interestCategories = interestCategories
+        self.interestSubcategories = interestSubcategories
     }
 }

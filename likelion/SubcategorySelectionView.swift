@@ -148,7 +148,9 @@ struct SubcategorySection: View {
                 Spacer()
 
                 // Count of selected in this category
-                let selectedInCategory = subcategories.filter { selectedSubcategories.contains($0) }.count
+                let selectedInCategory = subcategories.filter { sub in
+                    selectedSubcategories.contains(category.makeUniqueSubcategory(sub))
+                }.count
                 if selectedInCategory > 0 {
                     Text("\(selectedInCategory)")
                         .font(.system(size: 12, weight: .semibold))
@@ -166,9 +168,10 @@ struct SubcategorySection: View {
             // Subcategories
             FlowLayout(spacing: 8) {
                 ForEach(subcategories, id: \.self) { subcategory in
+                    let uniqueId = category.makeUniqueSubcategory(subcategory)
                     SubcategoryChip(
                         name: subcategory,
-                        isSelected: selectedSubcategories.contains(subcategory),
+                        isSelected: selectedSubcategories.contains(uniqueId),
                         onTap: {
                             toggleSubcategory(subcategory)
                         }
@@ -179,10 +182,11 @@ struct SubcategorySection: View {
     }
 
     private func toggleSubcategory(_ subcategory: String) {
-        if let index = selectedSubcategories.firstIndex(of: subcategory) {
+        let uniqueId = category.makeUniqueSubcategory(subcategory)
+        if let index = selectedSubcategories.firstIndex(of: uniqueId) {
             selectedSubcategories.remove(at: index)
         } else {
-            selectedSubcategories.append(subcategory)
+            selectedSubcategories.append(uniqueId)
         }
     }
 }

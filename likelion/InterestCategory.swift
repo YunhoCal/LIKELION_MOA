@@ -12,7 +12,7 @@ struct InterestCategory: Identifiable, Codable, Hashable {
             id: "sports_exercise",
             name: "Sports & Exercise",
             emoji: "⚽️",
-            subcategories: ["Badminton", "Running", "Gym/CrossFit", "Swimming", "Yoga", "Hiking", "Cycling", "Martial Arts", "Rock Climbing"]
+            subcategories: ["Badminton", "Running", "Gym/CrossFit", "Soccer", "Basketball", "Tennis", "Swimming", "Yoga", "Hiking", "Cycling", "Martial Arts", "Rock Climbing"]
         ),
         InterestCategory(
             id: "reading_writing",
@@ -108,6 +108,26 @@ struct InterestCategory: Identifiable, Codable, Hashable {
 
     static func getCategory(byId id: String) -> InterestCategory? {
         return allCategories.first { $0.id == id }
+    }
+
+    // Create unique subcategory ID
+    func makeUniqueSubcategory(_ subcategory: String) -> String {
+        return "\(id):\(subcategory)"
+    }
+
+    // Parse unique subcategory ID
+    static func parseSubcategory(_ uniqueId: String) -> (categoryId: String, name: String)? {
+        let components = uniqueId.split(separator: ":", maxSplits: 1)
+        guard components.count == 2 else { return nil }
+        return (String(components[0]), String(components[1]))
+    }
+
+    // Get display name from unique ID
+    static func getDisplayName(_ uniqueId: String) -> String {
+        if let parsed = parseSubcategory(uniqueId) {
+            return parsed.name
+        }
+        return uniqueId
     }
 }
 

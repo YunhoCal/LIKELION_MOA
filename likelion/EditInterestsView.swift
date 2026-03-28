@@ -10,6 +10,7 @@ struct EditInterestsView: View {
     @State private var isLoading: Bool = false
     @State private var showError: Bool = false
     @State private var errorMessage: String = ""
+    @State private var hasLoadedInitialData: Bool = false
 
     enum EditStep {
         case categories
@@ -82,6 +83,28 @@ struct EditInterestsView: View {
             } message: {
                 Text(errorMessage)
             }
+            .onAppear {
+                loadExistingInterests()
+            }
+        }
+    }
+
+    private func loadExistingInterests() {
+        guard !hasLoadedInitialData else { return }
+        hasLoadedInitialData = true
+
+        if let user = appState.currentUser {
+            // Load selected categories
+            if let categoryIds = user.interestCategories {
+                selectedCategories = categoryIds.compactMap { categoryId in
+                    InterestCategory.allCategories.first { $0.id == categoryId }
+                }
+            }
+
+            // Load selected subcategories
+            if let subcategories = user.interestSubcategories {
+                selectedSubcategories = subcategories
+            }
         }
     }
 
@@ -94,14 +117,28 @@ struct EditInterestsView: View {
 
             do {
                 let categoryIds = selectedCategories.map { $0.id }
-                _ = try await APIService.shared.updateInterests(
+                let response = try await APIService.shared.updateInterests(
                     userId: userId,
                     categories: categoryIds,
                     subcategories: selectedSubcategories
                 )
 
-                // Close the view
+                // Update the current user with new interests
                 await MainActor.run {
+                    if let user = appState.currentUser {
+                        appState.currentUser = User(
+                            id: user.id,
+                            email: user.email,
+                            name: user.name,
+                            university: user.university,
+                            major: user.major,
+                            graduationYear: user.graduationYear,
+                            bio: user.bio,
+                            interestCategories: categoryIds.isEmpty ? nil : categoryIds,
+                            interestSubcategories: selectedSubcategories.isEmpty ? nil : selectedSubcategories
+                        )
+                    }
+                    appState.token = response.token
                     dismiss()
                 }
 

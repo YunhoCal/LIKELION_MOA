@@ -22,6 +22,8 @@ struct UserResponse: Codable {
     let major: String?
     let graduation_year: String?
     let bio: String?
+    let interest_categories: [String]?
+    let interest_subcategories: [String]?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -31,6 +33,8 @@ struct UserResponse: Codable {
         case major
         case graduation_year
         case bio
+        case interest_categories
+        case interest_subcategories
     }
 }
 

@@ -145,7 +145,9 @@ struct OnboardingCoordinatorView: View {
                         university: userUniversity,
                         major: major.isEmpty ? nil : major,
                         graduationYear: graduationYear.isEmpty ? nil : graduationYear,
-                        bio: bio.isEmpty ? nil : bio
+                        bio: bio.isEmpty ? nil : bio,
+                        interestCategories: categoryIds.isEmpty ? nil : categoryIds,
+                        interestSubcategories: selectedSubcategories.isEmpty ? nil : selectedSubcategories
                     )
                     appState.isLoggedIn = true
                 }
