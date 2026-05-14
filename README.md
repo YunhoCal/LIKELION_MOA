@@ -13,11 +13,19 @@
 
 ---
 
-## Overview
+## Motivation
 
-MOA (Meet On App) is an iOS application that makes it easy to create, discover, and join local social activities. Whether it's a study session, a meal buddy, or a sports match — MOA connects people around shared interests through a clean and intuitive interface.
+Finding activities and meetups near you is harder than it should be. Most people want to study with others, grab a meal, or play a sport — but have no easy way to discover who else is looking for the same thing nearby. Existing platforms are either too large and impersonal, or too niche to be useful day-to-day.
 
-The app supports full user authentication, real-time activity browsing by category, event creation and joining, a personal event dashboard, and a calendar view to visualize activities by date.
+MOA was built to solve exactly that. The idea is simple: **anyone can host an activity, and anyone can join one** — no gatekeeping, no complicated setup. Whether you're a student looking for a study group, someone who doesn't want to eat alone, or just trying to find a pickup soccer game on a Saturday afternoon, MOA puts those opportunities right in front of you based on where you are.
+
+---
+
+## What is MOA?
+
+MOA (Meet On App) is an iOS application that makes it easy to create, discover, and join local social activities in real time. Users can browse activities around them filtered by category, see who's hosting and how many spots are left, and join with a single tap. Hosts can create events in seconds with a location, time, category, and capacity — and MOA handles the rest.
+
+The goal is to lower the barrier for spontaneous social connection. No formal groups, no membership required — just open activities that anyone nearby can find and join.
 
 ---
 
@@ -39,7 +47,7 @@ The app supports full user authentication, real-time activity browsing by catego
 - **Home Feed** — Browse trending activities filtered by category (Study, Meal Buddy, Sports, Others)
 - **Activity Details** — View event info (time, location, host, participants) and join with one tap
 - **Create Activity** — Post a new meetup with category, location, time, and capacity
-- **My Events** — Track events you created (Hosting) and events you joined (Joined), with real-time spot counts
+- **My Events** — Track events you are hosting and events you have joined, with real-time spot counts
 - **Calendar View** — Visualize all nearby or personal activities on a monthly calendar with date-based filtering
 
 ---
@@ -73,22 +81,11 @@ The app supports full user authentication, real-time activity browsing by catego
 ├── moa-backend/                 # Node.js backend server
 │   ├── server.js                # Express server entry point
 │   ├── routes/                  # API route handlers
-│   ├── middleware/              # Auth and request middleware
+│   ├── middleware/               # Auth and request middleware
 │   └── docker-compose.yml       # Docker configuration
 └── docs/
     └── screenshots/             # App screenshots
 ```
-
----
-
-## My Role
-
-- Designed and built the full iOS frontend using Swift and SwiftUI
-- Integrated Firebase Authentication for secure user sign-in and registration
-- Connected the app to Firebase Firestore for real-time data storage and retrieval
-- Built the home feed, calendar, activity detail, and event creation views
-- Implemented category-based filtering and participant capacity tracking
-- Contributed to backend API design and the Firestore data migration
 
 ---
 
