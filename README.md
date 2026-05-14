@@ -1,5 +1,6 @@
 # MOA(Meet On App)
 ## Yunho Choi
+### yunhochoi27@gmail.com
 
 
 MOA is a mobile application designed to help users create and join social meetups more easily. The app focuses on simplifying the process of discovering gatherings, organizing events, and connecting with others through a clean and intuitive interface.
@@ -31,11 +32,17 @@ MOA is a mobile application designed to help users create and join social meetup
 - Contributed to backend connection and app structure design
 
 ## Screenshots
-Add app screenshots here.
+
+| Login | Home | Activity Details |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/01_login.jpeg" width="200"/> | <img src="docs/screenshots/02_home.jpeg" width="200"/> | <img src="docs/screenshots/03_activity_details.jpeg" width="200"/> |
+
+| My Events | Calendar | Calendar (Date Selected) |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/04_my_events.jpeg" width="200"/> | <img src="docs/screenshots/05_calendar_1.jpeg" width="200"/> | <img src="docs/screenshots/06_calendar_2.jpeg" width="200"/> |
 
 ## Future Improvements
 - Improve search and filtering for meetups
 - Strengthen backend scalability
 - Refine UI consistency across screens
 - Add real-time interaction features
-          
