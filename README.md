@@ -1,6 +1,5 @@
 # MOA(Meet On App)
 ## Yunho Choi
-### yunhochoi27@gmail.com
 
 
 MOA is a mobile application designed to help users create and join social meetups more easily. The app focuses on simplifying the process of discovering gatherings, organizing events, and connecting with others through a clean and intuitive interface.
